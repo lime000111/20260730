@@ -65,6 +65,18 @@ table = table.sort_values("순위").reset_index(drop=True)
 st.subheader("📋 박스오피스 TOP 10")
 st.dataframe(table)
 
+# KOBIS 오픈API에는 연간 전용 조회 기능이 따로 없어서,
+# 그날 TOP 10 안에서 누적 관객수(audiAcc) 기준으로 다시 줄 세워 랭킹을 만든다.
+st.subheader(f"🏆 {selected_date.year}년 누적 관객수 랭킹 TOP 3")
+st.caption("※ 그날 TOP 10에 든 영화들 가운데, 누적 관객수 기준으로 다시 순위를 매긴 결과입니다.")
+
+year_top3 = table.sort_values("누적관객", ascending=False).head(3).reset_index(drop=True)
+medals = ["🥇", "🥈", "🥉"]
+rank_cols = st.columns(len(year_top3))
+for i, rank_col in enumerate(rank_cols):
+    row = year_top3.iloc[i]
+    rank_col.metric(f"{medals[i]} {row['영화명']}", f"{row['누적관객']:,}명")
+
 st.subheader("📈 관객수 상위 5편")
 top5 = table.sort_values("관객수", ascending=False).head(5)
 st.bar_chart(top5.set_index("영화명")["관객수"])
